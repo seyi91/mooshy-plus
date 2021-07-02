@@ -1,40 +1,80 @@
+import React, { Component } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
+import { auth, provider } from '../firebase';
+import { selectUserName, selectUserEmail, selectUserPhoto, setUserLoginDetails } from '../Features/User/userSlice';
 
 const Header = (props) => {
+    const dispatch = useDispatch();
+    const history = useHistory();
+    const userName = useSelector(selectUserName);
+    const userEmail = useSelector(selectUserEmail);
+    const userPhoto = useSelector(selectUserPhoto);
+
+
+    const handleAuth = () => {
+        auth
+            .signInWithPopup(provider)
+            .then((result) => {
+                setUser(result.user);
+            })
+            .catch((error) => {
+                alert(error.message);
+            });
+    }
+
+    const setUser = user => {
+        dispatch(setUserLoginDetails({
+            name: user.displayName,
+            email: user.email,
+            photo: user.photoURL
+        }));
+    }
+
     return (
-    <Nav>
-        <Logo>
-            <img src='/images/logo.svg' alt='Disney+' />
-        </Logo>
-        <NavMenu>
-            <a href="/home">
-                <img src="/images/home-icon.svg" alt="HOME" />
-                <span>HOME</span>
-            </a>
-            <a href="/search">
-                <img src="/images/search-icon.svg" alt="SEARCH" />
-                <span>SEARCH</span>
-            </a>
-            <a href="/watchlist">
-                <img src="/images/watchlist-icon.svg" alt="WATCHLIST" />
-                <span>WATCHLIST</span>
-            </a>
-            <a href="/originals">
-                <img src="/images/original-icon.svg" alt="ORIGINALS" />
-                <span>ORIGINALS</span>
-            </a>
-            <a href="/movies">
-                <img src="/images/movie-icon.svg" alt="MOVIES" />
-                <span>MOVIES</span>
-            </a>
-            <a href="/series">
-                <img src="/images/series-icon.svg" alt="SERIES" />
-                <span>SERIES</span>
-            </a>
-            
-        </NavMenu>
-    </Nav>
-    )
+        <Nav>
+            <Logo>
+                <img src='/images/logo.svg' alt='Disney+' />
+            </Logo>
+
+            {
+                !userName ?
+                    <Login onClick={handleAuth} >Login</Login>
+                    : (
+                        <React.Fragment>
+                            <NavMenu>
+                                <a href="/home">
+                                    <img src="/images/home-icon.svg" alt="HOME" />
+                                    <span>HOME</span>
+                                </a>
+                                <a href="/search">
+                                    <img src="/images/search-icon.svg" alt="SEARCH" />
+                                    <span>SEARCH</span>
+                                </a>
+                                <a href="/watchlist">
+                                    <img src="/images/watchlist-icon.svg" alt="WATCHLIST" />
+                                    <span>WATCHLIST</span>
+                                </a>
+                                <a href="/originals">
+                                    <img src="/images/original-icon.svg" alt="ORIGINALS" />
+                                    <span>ORIGINALS</span>
+                                </a>
+                                <a href="/movies">
+                                    <img src="/images/movie-icon.svg" alt="MOVIES" />
+                                    <span>MOVIES</span>
+                                </a>
+                                <a href="/series">
+                                    <img src="/images/series-icon.svg" alt="SERIES" />
+                                    <span>SERIES</span>
+                                </a>
+
+                            </NavMenu>
+                            <UserImg src={userPhoto} alt={userName} />
+                        </React.Fragment>
+                    )}
+        </Nav>
+    );
 }
 
 const Nav = styled.nav`
@@ -112,7 +152,7 @@ const NavMenu = styled.div`
             transform-origin: left center;
             transform: scaleX(0);
             transition: all 250ms cubic-bezier(0.25, 0.46, 0.45, 0.94) 0s;
-            visibility: hidden:
+            visibility: hidden;
             width: auto;
             }
         }
@@ -133,6 +173,28 @@ const NavMenu = styled.div`
     } */
 
 `;
+
+const Login = styled.a`
+    background-color: rgba(0, 0, 0, 0.6);
+    border: 1px solid #f9f9f9;
+    border-radius: 4px;
+    padding: 8px 16px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    transition: all 0.2s ease 0s;
+
+    &:hover {
+        background-color: #f9f9f9;
+        color: #000;
+        border-color: transparent;
+    }
+`;
+
+const UserImg = styled.img`
+    height: 100%;
+`;
+
+
 
 
 export default Header;
